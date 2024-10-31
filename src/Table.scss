@@ -4,7 +4,7 @@ $inactive-color: #dadde4;
 $new-color: #febf02;
 $text-color: #141a4e;
 $table-bg-color: #fefefe;
-$table-head-bg-color:  #0d6efd;
+$table-head-bg-color:  #167d88;
 $table-border-color: #edeef2;
 $hover-bg-color: #ffffff;
 $hover-text-color: #ffffff;
@@ -46,7 +46,7 @@ $hover-text-color: #ffffff;
 	margin: 2rem 0;
 	overflow: hidden;
 	&__row {
-		display: flex;
+		display: grid;
 		border-bottom: 1px solid $table-border-color;
 		padding: 0 0;
 		@include min-tablet {

@@ -17,6 +17,7 @@ const Index = () => {
     const sid = queryParams.get('sid');
 
     const [groupListData, setGroupListData] = useState([]);
+    
     const getData = async () => {
         const contentDocRef = query(collection(db, "student_list"),
             where("refId", "==", sid),
