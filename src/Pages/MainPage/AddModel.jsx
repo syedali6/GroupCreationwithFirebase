@@ -13,9 +13,13 @@ import {
 } from "firebase/firestore";
 import axios from 'axios';
 import { toast } from 'react-toastify';
-const addModel = ({dataFetch,showModel,closeModel}) => {
+import Spinner from 'react-bootstrap/esm/Spinner';
+const addModel = ({ dataFetch, showModel, closeModel }) => {
     const [show, setShow] = useState(false);
-    const handleClose = () => {setShow(false)
+    const [loader, setLoader] = useState(false);
+
+    const handleClose = () => {
+        setShow(false)
         closeModel();
     };
     const handleShow = () => setShow(true);
@@ -28,12 +32,13 @@ const addModel = ({dataFetch,showModel,closeModel}) => {
 
     const getData = async (e) => {
         e.preventDefault();
+        setLoader(true);
 
-        if(formData.groupname){
+        if (formData.groupname) {
             const groupnameToCheck = formData.groupname;
             const contentDocRef = collection(db, "groups");
             const querySnapshot = await getDocs(query(contentDocRef, where("groupname", "==", groupnameToCheck)));
-        
+
             if (!querySnapshot.empty) {
                 toast.warning("Group name already exists. Please choose a different name.");
                 return;
@@ -43,7 +48,7 @@ const addModel = ({dataFetch,showModel,closeModel}) => {
                 ...formData,
             }
             const docRef = await addDoc(contentDocRef, data);
-    
+
             // try {
             //     const response = await axios.post(
             //         "http://localhost:5001/groupcreation-95ea3/us-central1/getData",
@@ -60,13 +65,15 @@ const addModel = ({dataFetch,showModel,closeModel}) => {
             //     console.error("Error posting data:", error);
             // }
             toast.success("Group Add Successfully");
-    
+
             handleClose();
             dataFetch();
             setFormData();
-        }else{
+        } else {
             toast.warning("Required Field Are Missing");
         }
+        setLoader(false);
+
     }
 
     const handleChange = (e) => {
@@ -100,9 +107,24 @@ const addModel = ({dataFetch,showModel,closeModel}) => {
                             />
                         </div>
                         <div className='text-end'>
-                        <Button className='btn-styled mt-2' type='submit' variant="primary">
-                            Add
-                        </Button>
+                            {!loader && (
+
+                                <Button className='btn-styled mt-2' type='submit' variant="primary">
+                                    Add
+                                </Button>
+                            )}
+                            {loader && (
+                                <Button className='btn-styled mt-2' variant="primary">
+                                    <Spinner
+                                        as="span"
+                                        animation="grow"
+                                        size="sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                    />
+                                    Loading...
+                                </Button>
+                            )}
                         </div>
                     </Form>
                 </Modal.Body>

@@ -11,25 +11,27 @@ import {
 } from "firebase/firestore";
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Spinner from 'react-bootstrap/Spinner';
 
 const AddStudents = ({ id, dataFetch }) => {
     const [show, setShow] = useState(false);
     const [formData, setFormData] = useState([]);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-
+    const [loader, setLoader] = useState(false);
     const getData = async (e) => {
         e.preventDefault();
+        setLoader(true);
         if (formData.studentEmail && formData.studentName && formData.studentPhone) {
             const studentEmailToCheck = formData.studentEmail.toLowerCase();
             const studentNameToCheck = formData.studentName.toLowerCase();
             const contentDocRef = collection(db, "student_list");
-        
+
             const querySnapshot = await getDocs(contentDocRef);
-        
+
             let emailExists = false;
             let nameExists = false;
-            let numberExists =false;
+            let numberExists = false;
             querySnapshot.forEach((doc) => {
                 const studentData = doc.data();
                 if (studentData.studentEmail.toLowerCase() === studentEmailToCheck) {
@@ -38,11 +40,11 @@ const AddStudents = ({ id, dataFetch }) => {
                 if (studentData.studentName.toLowerCase() === studentNameToCheck) {
                     nameExists = true;
                 }
-                if (studentData.studentPhone.toLowerCase() === formData.studentPhone) {
+                if (studentData.studentPhone === formData.studentPhone) {
                     numberExists = true;
                 }
             });
-        
+
             if (emailExists) {
                 toast.warning("A student with this email already exists.");
                 return;
@@ -55,20 +57,20 @@ const AddStudents = ({ id, dataFetch }) => {
                 toast.warning("A student with this number already exists.");
                 return;
             }
-        
+
             // Proceed with adding the new student
             const data = {
                 ...formData,
-                studentEmail: studentEmailToCheck, 
+                studentEmail: studentEmailToCheck,
                 studentName: studentNameToCheck,
                 refId: id,
             };
             const docRef = await addDoc(contentDocRef, data);
-        
+
             toast.success("Member Added Successfully");
-        
+
             // Uncomment to send data to the backend if needed
-            
+
             // try {
             //     const response = await axios.post(
             //         "http://localhost:5001/groupcreation-95ea3/us-central1/getStudentData",
@@ -84,15 +86,17 @@ const AddStudents = ({ id, dataFetch }) => {
             // } catch (error) {
             //     console.error("Error posting data:", error);
             // }
-        
+
             handleClose();
             dataFetch();
             setFormData([]); // Clear form
         } else {
             toast.warning("Required fields are missing");
         }
-        
-        
+
+        setLoader(false);
+
+
     }
 
     const handleChange = (e) => {
@@ -104,7 +108,7 @@ const AddStudents = ({ id, dataFetch }) => {
     };
     return (
         <>
-            <Button className='btn-styled'  onClick={handleShow}>
+            <Button className='btn-styled' onClick={handleShow}>
                 Add Members
             </Button>
 
@@ -151,9 +155,25 @@ const AddStudents = ({ id, dataFetch }) => {
                         </div>
 
                         <div className='text-end'>
-                            <Button className='btn-styled mt-2' type='submit' variant="primary">
-                                Add
-                            </Button>
+                            {!loader && (
+
+                                <Button className='btn-styled mt-2' type='submit' variant="primary">
+                                    Add
+                                </Button>
+                            )}
+
+                            {loader && (
+                                <Button className='btn-styled mt-2' variant="primary">
+                                    <Spinner
+                                        as="span"
+                                        animation="grow"
+                                        size="sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                    />
+                                    Loading...
+                                </Button>
+                            )}
                         </div>
                     </Form>
                 </Modal.Body>
